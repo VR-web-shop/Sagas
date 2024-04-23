@@ -1,0 +1,29 @@
+{
+  "name": "@vr-web-shop/sagas",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "/dist/bundle.js",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "rollup --config rollup.config.mjs",
+    "deploy": "bash deploy.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vr-web-shop/Sagas.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com/vr-web-shop"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^4.13.0",
+    "amqplib": "^0.10.3"
+  }
+}
