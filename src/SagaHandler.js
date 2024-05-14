@@ -58,10 +58,10 @@ class SagaHandler {
                     }
                     
                     try {
-                    const msg = await executeCallback(callback, states.PENDING, params);
-                    await executeSend(eventName, msg);
+                        const msg = await executeCallback(callback, states.PENDING, params);
+                        await executeSend(eventName, msg);
                     } catch (error) {
-                        that.reduce({ params: response.params, error: error.message });
+                        that.reduce({ params, error: error.message });
                     }
                 }
             } else if (type === types.CHAIN) {
