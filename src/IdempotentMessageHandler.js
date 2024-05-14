@@ -15,23 +15,30 @@ class IdempotentMessageHandler {
         this.db = db;
     }
     
-    async existOrCreate(messageUUID) {
+    async existOrCreate(messageUUID, t=null) {
         if (!messageUUID || typeof messageUUID !== "string") {
             throw new Error("message_uuid is required and must be a string");
         }
+        
+        const executeTransaction = async (transaction) => {
+            const subscriberID = this.subscriber_id;
+            const message = await this.db[tableName].findOne(
+                { where: { messageUUID, subscriberID } },
+                { transaction }
+            );
 
-        const subscriberID = this.subscriber_id;
-        const message = await this.db[tableName].findOne(
-            { where: { messageUUID, subscriberID } }
-        );
+            if (message) {
+                return true;
+            }
 
-        if (message) {
-            return true;
+            await this.db[tableName].create(
+                { subscriberID, messageUUID },
+                { transaction }
+            );
         }
 
-        await this.db[tableName].create(
-            { subscriberID, messageUUID }
-        );
+        if (t) await executeTransaction(t);
+        else await this.db.sequelize.transaction(executeTransaction);
 
         return false;
     }
