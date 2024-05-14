@@ -57,12 +57,8 @@ class SagaHandler {
                         params = { ...opt.defaultParams, ...params };
                     }
                     
-                    try {
-                        const msg = await executeCallback(callback, states.PENDING, params);
-                        await executeSend(eventName, msg);
-                    } catch (error) {
-                        that.reduce({ params, error: error.message });
-                    }
+                    const msg = await executeCallback(callback, states.PENDING, params);
+                    await executeSend(eventName, msg);
                 }
             } else if (type === types.CHAIN) {
                 queueService.addListener(eventName, async (response) => {
