@@ -5,6 +5,6 @@ export default {
 		file: './dist/bundle.js',
 		format: 'es'
 	},
-	external: ['amqplib'],
+	external: ['amqplib', 'uuid'],
 	plugins: []
 };
