@@ -1,6 +1,6 @@
 {
   "name": "@vr-web-shop/sagas",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "type": "module",
   "main": "/dist/bundle.js",
