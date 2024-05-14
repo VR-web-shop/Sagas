@@ -57,8 +57,12 @@ class SagaHandler {
                         params = { ...opt.defaultParams, ...params };
                     }
                     
+                    try {
                     const msg = await executeCallback(callback, states.PENDING, params);
                     await executeSend(eventName, msg);
+                    } catch (error) {
+                        that.reduce({ params: response.params, error: error.message });
+                    }
                 }
             } else if (type === types.CHAIN) {
                 queueService.addListener(eventName, async (response) => {
@@ -67,6 +71,7 @@ class SagaHandler {
                         await executeSend(nextEventName, msg);
                     } catch (error) {
                         await executeSend(reduceEventName, response.params, error.message);
+                        that.reduce({ params: response.params, error: error.message });
                     }
                 });
 
@@ -77,6 +82,7 @@ class SagaHandler {
                         await executeSend(completeEventName, msg);
                     } catch (error) {
                         await executeSend(reduceEventName, response.params, error.message);
+                        that.reduce({ params: response.params, error: error.message });
                     }
                 });
             }
@@ -101,20 +107,26 @@ class SagaHandler {
         };
 
         this.onReduceEvent = function (callback) {
-            if (type === types.START) {
-                queueService.addListener(reduceEventName, async (response) => {
-                    await executeCallback(callback, states.FAILED, response);
-                });
-            } else if (type === types.CHAIN) {
-                queueService.addListener(reduceNextEventName, async (response) => {
-                    try {
+            that.reduce = async (_response) => {
+                if (type === types.START) {
+                    queueService.addListener(reduceEventName, async (response) => {
                         await executeCallback(callback, states.FAILED, response);
-                        await executeSend(reduceEventName, response.params, response.error);
-                    } catch (error) {
-                        await executeSend(reduceEventName, response.params, response.error);
-                    }
-                });
+                    });
+                } else if (type === types.CHAIN) {
+                    queueService.addListener(reduceNextEventName, async (response) => {
+                        try {
+                            await executeCallback(callback, states.FAILED, response);
+                            await executeSend(reduceEventName, response.params, response.error);
+                        } catch (error) {
+                            await executeSend(reduceEventName, response.params, response.error);
+                        }
+                    });
+                } else {
+                    await executeCallback(callback, states.FAILED, _response);
+                }
             }
+
+            that.reduce();
         }
     }
 }
