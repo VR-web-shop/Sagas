@@ -120,7 +120,7 @@ const connect = async () => {
  * @returns {boolean}
  */
 const isConnected = () => {
-    return conn && ch;
+    return conn !== undefined && ch !== undefined;
 }
 
 /**
